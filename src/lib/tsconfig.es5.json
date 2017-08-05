@@ -1,0 +1,23 @@
+{
+    "extends": "./tsconfig.lib.json",
+    "compilerOptions": {
+        "target": "es5",
+        "outDir": "../../out-tsc/lib-es5/",
+        "baseUrl": "",
+        "types": [
+            "node"
+        ]
+    },
+    "files": [
+        "./index.ts",
+        "./typings.d.ts"
+    ],
+    "angularCompilerOptions": {
+        "annotateForClosureCompiler": true,
+        "strictMetadataEmit": true,
+        "skipTemplateCodegen": true,
+        "flatModuleOutFile": "adal-angular-ts.js",
+        "flatModuleId": "adal-angular-ts",
+        "genDir": "../../out-tsc/lib-gen-dir/"
+    }
+}
