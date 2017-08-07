@@ -2,15 +2,15 @@
 [![npm version](https://badge.fury.io/js/adal-angular-ts.svg)](https://badge.fury.io/js/adal-angular-ts)
 ![npm license](https://img.shields.io/npm/l/express.svg)
 
-#adal-angular-ts
+# adal-angular-ts
 A typescript library that allows you to authenticate against Azure Active Directory and ADFS
 
-##Instalation
+## Instalation
 ```
 npm i adal-angular-ts --save
 ```
 
-##Example Usage
+## Example Usage
 
 ### Add Module to Bootstrap of Application
 ```
