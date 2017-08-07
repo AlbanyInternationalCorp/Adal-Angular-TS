@@ -1,6 +1,6 @@
 {
     "name": "adal-angular-ts",
-    "version": "0.0.20-alpha",
+    "version": "0.0.23-alpha",
     "description": "Angular wrapper for Adal written in TypeScript.",
     "main": "./bundles/adal-angular-ts.umd.js",
     "module": "./adal-angular-ts.es5.js",
@@ -8,7 +8,10 @@
     "typings": "./adal-angular-ts.d.ts",
     "author": "",
     "license": "MIT",
-    "repository": {},
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/AlbanyInternationalCorp/Adal-Angular-TS"
+    },
     "engines": {
         "node": ">= 6.9.0",
         "npm": ">= 3.0.0"

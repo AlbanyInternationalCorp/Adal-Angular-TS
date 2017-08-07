@@ -211,7 +211,6 @@ export class AuthenticationContext {
 
     isCallback(hash: any) {
         hash = this.getHash(hash);
-        console.log(hash)
         var parameters = this.deserialize(hash);
         return (
             parameters.hasOwnProperty(this.CONSTANTS.ERROR_DESCRIPTION) ||
