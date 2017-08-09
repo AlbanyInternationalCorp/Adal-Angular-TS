@@ -1,8 +1,9 @@
+import { AuthenticationContext } from "./service/adal";
 import { AdalConfig } from './service/adal.config';
 import { AdalProvider } from './service/adal.provider';
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthenticationContext } from "./service/adal";
+
 @NgModule({
     imports: [CommonModule],
     declarations: [],
