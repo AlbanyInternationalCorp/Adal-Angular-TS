@@ -1,23 +1,40 @@
+import { Injectable } from '@angular/core';
+@Injectable()
 export class AuthenticationContext {
+    private tenant: string;
+    private clientID: string;
+    private redirectUri: string;
+    private instance: string;
+    private postLogoutRedirectUri?: string;
+
     constructor(
-        private tenant: string,
-        private clientID: string,
-        private redirectUri: string,
-        private instance?: string,
-        private endpoints?: any[],
-        private popUp?: boolean,
-        private localLoginUrl?: string,
-        private displayCall?: any,
-        private postLogoutRedirectUri?: string,
-        private cacheLocation?: string,
-        private anonymousEndpoints?: any[],
-        private expireOffsetSeconds?: number,
-        private correlationId?: string,
     ) {
-        this.instance = this.instance ? this.instance : 'https://login.microsoftonline.com/';
-        this.url = `
-        ${this.instance}${this.tenant}/oauth2/authorize?response_type=id_token&client_id=${this.clientID}&redirect_uri=${this.redirectUri}&state=b0a0540f-13ff-4547-88ed-389401fa5bdc&&client-request-id=efcaea8a-6a4a-45fb-aea3-4fa421c449fc&x-client-SKU=Js&x-client-Ver=1.0.14&nonce=644acc7d-978d-491d-99e9-13c42dc2f5a5`;
     }
+
+    initialize(t:string, c:string, r:string, i:string, p?:string){
+        this.tenant = t;
+        this.clientID = c;
+        this.redirectUri = r;
+        this.instance = this.instance ? this.instance : 'https://login.microsoftonline.com/';
+        this.postLogoutRedirectUri = p;
+    }
+
+    getUrl(responseType = 'id_token', resource:any = null) {
+        let tenant = this.tenant ? this.tenant : 'common';
+        let url = this.instance + tenant + '/oauth2/authorize' + this.serialize(responseType, resource) + this.addLibMetadata();
+        return url;
+    }
+
+    addLibMetadata() {
+        // x-client-SKU
+        // x-client-Ver
+        return '&x-client-SKU=Js&x-client-Ver=' + this.libVersion();
+    }
+
+    libVersion() {
+        return '1.0.15';
+    }
+
     url: string;
     private config = {
         state: '',
@@ -25,69 +42,39 @@ export class AuthenticationContext {
         displayCall: function (display: string) {
         },
     }
-    CONSTANTS = {
-        ACCESS_TOKEN: 'access_token',
-        EXPIRES_IN: 'expires_in',
-        ID_TOKEN: 'id_token',
-        ERROR_DESCRIPTION: 'error_description',
-        SESSION_STATE: 'session_state',
-        STORAGE: {
-            TOKEN_KEYS: 'adal.token.keys',
-            ACCESS_TOKEN_KEY: 'adal.access.token.key',
-            EXPIRATION_KEY: 'adal.expiration.key',
-            STATE_LOGIN: 'adal.state.login',
-            STATE_RENEW: 'adal.state.renew',
-            NONCE_IDTOKEN: 'adal.nonce.idtoken',
-            SESSION_STATE: 'adal.session.state',
-            USERNAME: 'adal.username',
-            IDTOKEN: 'adal.idtoken',
-            ERROR: 'adal.error',
-            ERROR_DESCRIPTION: 'adal.error.description',
-            LOGIN_REQUEST: 'adal.login.request',
-            LOGIN_ERROR: 'adal.login.error',
-            RENEW_STATUS: 'ad?al.token.renew.status'
-        },
-        RESOURCE_DELIMETER: '|',
-        LOADFRAME_TIMEOUT: '6000',
-        TOKEN_RENEW_STATUS_CANCELED: 'Canceled',
-        TOKEN_RENEW_STATUS_COMPLETED: 'Completed',
-        TOKEN_RENEW_STATUS_IN_PROGRESS: 'In Progress',
-        LOGGING_LEVEL: {
-            ERROR: 0,
-            WARN: 1,
-            INFO: 2,
-            VERBOSE: 3
-        },
-        LEVEL_STRING_MAP: {
-            0: 'ERROR:',
-            1: 'WARNING:',
-            2: 'INFO:',
-            3: 'VERBOSE:'
-        },
-        POPUP_WIDTH: 483,
-        POPUP_HEIGHT: 600
-    };
 
-
-    //??
-    _loginInProgress = false;
-
-    saveItem(key: string, object: string) {
-        //check if should be saved to local storage?
-        if (this.cacheLocation === 'localStorage') {
-            //check if local storage is supported
-            if (!this.supportLocalStorage()) {
-                return false;
-            }
-
-            //save to local storage
+    saveItem(key: string, object: any) {
+        // check if session storage is supported if so save there
+        if (this.supportSessionStorage()) {
+            sessionStorage.setItem(key, object);
+            return true;
+        } else if (this.supportLocalStorage()) {
             localStorage.setItem(key, object);
-        }
-        if (!this.supportSessionStorage()) {
+            return true;
+        } else {
             return false;
         }
-        sessionStorage.setItem(key, object);
-        return true;
+    }
+
+    getCachedToken() {
+        let token = this.getItem('id_token');
+        let expiry = parseInt(this.getItem('exp'));
+
+        // If expiration is within offset, it will force renew
+        // var offset = 300;
+        // if (expiry && (expiry > Date.now())) {
+        //     console.log("22");
+        //     return token;
+        // } else {
+        //     // this.saveItem('id_token', '');
+        //     // this.saveItem('exp', 0);
+        //     return token;
+        // }
+        return token;
+    }
+
+    getItem(key: string): string {
+        return window.sessionStorage.getItem(key);
     }
 
     supportSessionStorage() {
@@ -166,12 +153,13 @@ export class AuthenticationContext {
         let expectedState = this.getGUID();
         this.config.state = expectedState;
         let idTokenNonce = this.getGUID();
-        this.saveItem(this.CONSTANTS.STORAGE.LOGIN_REQUEST, window.location.href);
-        this.saveItem(this.CONSTANTS.STORAGE.LOGIN_ERROR, '');
-        this.saveItem(this.CONSTANTS.STORAGE.STATE_LOGIN, expectedState);
-        this.saveItem(this.CONSTANTS.STORAGE.NONCE_IDTOKEN, idTokenNonce);
-        this.saveItem(this.CONSTANTS.STORAGE.ERROR, '');
-        this.saveItem(this.CONSTANTS.STORAGE.ERROR_DESCRIPTION, '');
+        this.saveItem('adal.login.request', window.location.href);
+        this.saveItem('adal.login.error', '');
+        this.saveItem('adal.state.login', expectedState);
+        this.saveItem('adal.nonce.idtoken', idTokenNonce);
+        this.saveItem('adal.error', '');
+        this.saveItem('error_description', '');
+        this.url = this.getUrl('id_token', null) + '&nonce=' + encodeURIComponent(idTokenNonce);
         this.promptUser(this.url);
     }
 
@@ -181,30 +169,20 @@ export class AuthenticationContext {
         } else {
         }
     }
-    
-    serialize(responseType: any, obj: any, resource: any) {
+
+    serialize(responseType: any, resource: any) {
         var str = [];
-        if (obj !== null) {
-            str.push('?response_type=' + responseType);
-            str.push('client_id=' + encodeURIComponent(this.clientID));
-            if (resource) {
-                str.push('resource=' + encodeURIComponent(resource));
-            }
-
-            str.push('redirect_uri=' + encodeURIComponent(this.redirectUri));
-            str.push('state=' + encodeURIComponent(obj.state));
-
-            if (obj.hasOwnProperty('slice')) {
-                str.push('slice=' + encodeURIComponent(obj.slice));
-            }
-
-            if (obj.hasOwnProperty('extraQueryParameter')) {
-                str.push(obj.extraQueryParameter);
-            }
-
-            var correlationId = obj.correlationId ? obj.correlationId : this.getGUID();
-            str.push('client-request-id=' + encodeURIComponent(correlationId));
+        str.push('?response_type=' + responseType);
+        str.push('client_id=' + encodeURIComponent(this.clientID));
+        if (resource) {
+            str.push('resource=' + encodeURIComponent(resource));
         }
+
+        str.push('redirect_uri=' + encodeURIComponent(this.redirectUri));
+        str.push('state=' + encodeURIComponent(''));
+
+        var correlationId = this.getGUID();
+        str.push('client-request-id=' + encodeURIComponent(correlationId));
 
         return str.join('&');
     }
@@ -213,9 +191,9 @@ export class AuthenticationContext {
         hash = this.getHash(hash);
         var parameters = this.deserialize(hash);
         return (
-            parameters.hasOwnProperty(this.CONSTANTS.ERROR_DESCRIPTION) ||
-            parameters.hasOwnProperty(this.CONSTANTS.ACCESS_TOKEN) ||
-            parameters.hasOwnProperty(this.CONSTANTS.ID_TOKEN)
+            parameters.hasOwnProperty('error_description') ||
+            parameters.hasOwnProperty('access_token') ||
+            parameters.hasOwnProperty('id_token')
         );
     }
 
