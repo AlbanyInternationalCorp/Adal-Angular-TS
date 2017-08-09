@@ -1,6 +1,6 @@
 {
     "name": "adal-angular-ts",
-    "version": "0.0.23-alpha",
+    "version": "0.0.24-alpha",
     "description": "Angular wrapper for Adal written in TypeScript.",
     "main": "./bundles/adal-angular-ts.umd.js",
     "module": "./adal-angular-ts.es5.js",
@@ -79,8 +79,7 @@
         "zone.js": "^0.8.4"
     },
     "dependencies": {
-        "adal-angular": "^1.0.15",
-        "expose-loader": "^0.7.3",
+        "adal-angular-ts": "0.0.23-alpha",
         "ts-loader": "^2.3.1"
     }
 }
