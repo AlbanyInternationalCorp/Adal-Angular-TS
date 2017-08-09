@@ -1,6 +1,6 @@
 {
     "name": "adal-angular-ts",
-    "version": "0.0.23-alpha",
+    "version": "0.0.25-alpha",
     "description": "Angular wrapper for Adal written in TypeScript.",
     "main": "./bundles/adal-angular-ts.umd.js",
     "module": "./adal-angular-ts.es5.js",
@@ -10,12 +10,13 @@
     "license": "MIT",
     "repository": {
         "type": "git",
-        "url": "https://github.com/AlbanyInternationalCorp/Adal-Angular-TS"
+        "url": "git+https://github.com/AlbanyInternationalCorp/Adal-Angular-TS.git"
     },
     "engines": {
         "node": ">= 6.9.0",
         "npm": ">= 3.0.0"
     },
+
     "scripts": {
         "clean": "rimraf out-tsc dist/*",
         "prebuild": "npm run clean",
@@ -82,5 +83,9 @@
         "adal-angular": "^1.0.15",
         "expose-loader": "^0.7.3",
         "ts-loader": "^2.3.1"
-    }
+    },
+    "bugs": {
+        "url": "https://github.com/AlbanyInternationalCorp/Adal-Angular-TS/issues"
+    },
+    "homepage": "https://github.com/AlbanyInternationalCorp/Adal-Angular-TS#readme"
 }
