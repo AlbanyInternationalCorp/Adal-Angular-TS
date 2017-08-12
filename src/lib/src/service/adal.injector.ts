@@ -1,6 +1,8 @@
 import { AdalProvider } from './adal.provider';
-/// <reference path="./index.d.ts" />
-import { Injectable, HttpInterceptor, HttpRequest, HttpHandler, Observable } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { HttpInterceptor } from "@angular/common/http";
+import { HttpRequest, HttpHandler, HttpEvent } from "@angular/common/http";
 
 @Injectable()
 export class TokenInterceptor implements HttpInterceptor {

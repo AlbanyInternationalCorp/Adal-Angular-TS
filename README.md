@@ -1,4 +1,4 @@
-
+<!--TODO: Add how to use interceptor -->
 [![npm version](https://badge.fury.io/js/adal-angular-ts.svg)](https://badge.fury.io/js/adal-angular-ts)
 ![npm license](https://img.shields.io/npm/l/express.svg)
 

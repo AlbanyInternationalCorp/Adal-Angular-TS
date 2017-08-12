@@ -1,23 +1,22 @@
-import { Injectable } from '@angular/core';
+import { AdalConfig } from './../../../../out-tsc/lib/src/service/adal.config';
+import { Injectable, Inject } from '@angular/core';
 @Injectable()
 export class AuthenticationContext {
-    private tenant: string;
-    private clientID: string;
-    private redirectUri: string;
-    private instance: string;
-    private postLogoutRedirectUri?: string;
 
     constructor(
+         @Inject('config') private config: AdalConfig
     ) {
+        if(!this.config.instance) this.config.instance = "https://login.microsoftonline.com/";
     }
+    //TODO: all private but login and acquire token
 
-    initialize(t:string, c:string, r:string, i:string, p?:string){
-        this.tenant = t;
-        this.clientID = c;
-        this.redirectUri = r;
-        this.instance = this.instance ? this.instance : 'https://login.microsoftonline.com/';
-        this.postLogoutRedirectUri = p;
-    }
+    // initialize(t:string, c:string, r:string, i:string, p?:string){
+    //     this.tenant = t;
+    //     this.clientID = c;
+    //     this.redirectUri = r;
+    //     this.instance = this.instance ? this.instance : 'https://login.microsoftonline.com/';
+    //     this.postLogoutRedirectUri = p;
+    // }
 
     getUrl(responseType = 'id_token', resource:any = null) {
         let tenant = this.tenant ? this.tenant : 'common';
@@ -43,7 +42,9 @@ export class AuthenticationContext {
         },
     }
 
+
     saveItem(key: string, object: any) {
+        //TODO: scrap local keep session
         // check if session storage is supported if so save there
         if (this.supportSessionStorage()) {
             sessionStorage.setItem(key, object);
@@ -164,10 +165,9 @@ export class AuthenticationContext {
     }
 
     promptUser(url: string) {
-        if (url) {
-            window.location.replace(url);
-        } else {
-        }
+        if (url) window.location.replace(url);
+        else console.error("URL not provided");
+        
     }
 
     serialize(responseType: any, resource: any) {
