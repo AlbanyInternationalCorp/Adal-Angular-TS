@@ -1,4 +1,4 @@
-import { AdalConfig } from './../../../../out-tsc/lib/src/service/adal.config';
+import { AdalConfig } from './adal.config';
 import { Injectable, Inject } from '@angular/core';
 @Injectable()
 export class AuthenticationContext {
@@ -48,7 +48,6 @@ export class AuthenticationContext {
 
 
     private saveItem(key: string, object: any): boolean {
-        //TODO: scrap local keep session
         // check if session storage is supported if so save there
         if (this.supportSessionStorage()) {
             sessionStorage.setItem(key, object);

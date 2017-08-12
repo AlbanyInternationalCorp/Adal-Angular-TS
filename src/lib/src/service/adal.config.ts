@@ -8,7 +8,6 @@ export class AdalConfig {
     public instance?: string;
     public extraQueryParameter?: string;
     constructor(
-
     ) {
     }
 }

@@ -14,7 +14,7 @@ export class AdalModule {
     static forRoot(config: AdalConfig): ModuleWithProviders {
         return {
             ngModule: AdalModule,
-            providers: [AdalProvider, { provide: 'config', useValue: config }]
+            providers: [AdalProvider, AdalConfig, { provide: 'config', useValue: config }]
         }
     }
 }

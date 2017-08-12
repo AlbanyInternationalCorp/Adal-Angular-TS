@@ -10,6 +10,7 @@ export class AdalProvider {
     ) {
     }
     login() {
+        //take values and set prop and then login make optional?
         if (!this.context.isCallback(window.location.hash)) {
             this.context.login();
         } else {
