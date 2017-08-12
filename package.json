@@ -1,6 +1,6 @@
 {
     "name": "adal-angular-ts",
-    "version": "0.0.30-alpha",
+    "version": "0.0.31-alpha",
     "description": "Angular wrapper for Adal written in TypeScript.",
     "main": "./bundles/adal-angular-ts.umd.js",
     "module": "./adal-angular-ts.es5.js",
