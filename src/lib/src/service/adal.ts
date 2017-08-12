@@ -4,60 +4,61 @@ import { Injectable, Inject } from '@angular/core';
 export class AuthenticationContext {
 
     constructor(
-         @Inject('config') private config: AdalConfig
+        @Inject('config') private config: AdalConfig
     ) {
-        if(!this.config.instance) this.config.instance = "https://login.microsoftonline.com/";
+        if (!this.config.instance) this.config.instance = "https://login.microsoftonline.com/";
     }
-    //TODO: all private but login and acquire token
 
-    // initialize(t:string, c:string, r:string, i:string, p?:string){
-    //     this.tenant = t;
-    //     this.clientID = c;
-    //     this.redirectUri = r;
-    //     this.instance = this.instance ? this.instance : 'https://login.microsoftonline.com/';
-    //     this.postLogoutRedirectUri = p;
-    // }
+    handleCallback() {
+        let hash = this.getHash(window.location.hash);
+        var parameters = this.deserialize(hash);
+        // loop through params and save
+        for (let key in parameters) {
+            let value = parameters[key];
+            this.saveItem(key, parameters[key]);
+            // Use `key` and `value`
+        }
+        var tokenParams = JSON.parse(atob(this.getItem('id_token').split('.')[1]));
+        for (let key in tokenParams) {
+            let value = tokenParams[key];
+            this.saveItem(key, tokenParams[key]);
+            // Use `key` and `value`
+        }
+        //strip hash from url
+        window.location.hash = '';
+    }
 
-    getUrl(responseType = 'id_token', resource:any = null) {
-        let tenant = this.tenant ? this.tenant : 'common';
-        let url = this.instance + tenant + '/oauth2/authorize' + this.serialize(responseType, resource) + this.addLibMetadata();
+    private getUrl(responseType = 'id_token', resource: any = null): string {
+        let tenant = this.config.tenant ? this.config.tenant : 'common';
+        let url = this.config.instance + tenant + '/oauth2/authorize' + this.serialize(responseType, resource) + this.addLibMetadata();
         return url;
     }
 
-    addLibMetadata() {
+    private addLibMetadata() {
         // x-client-SKU
         // x-client-Ver
         return '&x-client-SKU=Js&x-client-Ver=' + this.libVersion();
     }
 
-    libVersion() {
+    private libVersion() {
         return '1.0.15';
     }
 
     url: string;
-    private config = {
-        state: '',
-        tenant: '',
-        displayCall: function (display: string) {
-        },
-    }
 
 
-    saveItem(key: string, object: any) {
+    private saveItem(key: string, object: any): boolean {
         //TODO: scrap local keep session
         // check if session storage is supported if so save there
         if (this.supportSessionStorage()) {
             sessionStorage.setItem(key, object);
-            return true;
-        } else if (this.supportLocalStorage()) {
-            localStorage.setItem(key, object);
             return true;
         } else {
             return false;
         }
     }
 
-    getCachedToken() {
+    acquireToken(): any {
         let token = this.getItem('id_token');
         let expiry = parseInt(this.getItem('exp'));
 
@@ -74,11 +75,11 @@ export class AuthenticationContext {
         return token;
     }
 
-    getItem(key: string): string {
+    private getItem(key: string): string {
         return window.sessionStorage.getItem(key);
     }
 
-    supportSessionStorage() {
+    private supportSessionStorage() {
         try {
             if (!window.sessionStorage) return false; // Test availability
             window.sessionStorage.setItem('storageTest', 'A'); // Try write
@@ -91,19 +92,7 @@ export class AuthenticationContext {
         }
     }
 
-    supportLocalStorage(): boolean {
-        try {
-            if (!window.localStorage) return false; //test availability
-            window.localStorage.setItem('storageTest', 'A'); // try write
-            if (window.localStorage.getItem('storageTest') != 'A') return false; //test read write
-            window.localStorage.removeItem('storageTest'); // try delete
-            if (window.localStorage.getItem('storageTest')) return false; //test delete
-        } catch (error) {
-            return false;
-        }
-    }
-
-    decimalToHex(value: number) {
+    private decimalToHex(value: number) {
         var hex = value.toString(16);
         while (hex.length < 2) {
             hex = '0' + hex;
@@ -113,7 +102,7 @@ export class AuthenticationContext {
 
 
 
-    getGUID() {
+    private getGUID() {
         var cryptoObj = window.crypto //|| window.msCrypto; // for IE 11
         if (cryptoObj && cryptoObj.getRandomValues) {
             var buffer = new Uint8Array(16);
@@ -152,7 +141,7 @@ export class AuthenticationContext {
     }
     login() {
         let expectedState = this.getGUID();
-        this.config.state = expectedState;
+        //        this.config.state = expectedState;
         let idTokenNonce = this.getGUID();
         this.saveItem('adal.login.request', window.location.href);
         this.saveItem('adal.login.error', '');
@@ -164,21 +153,21 @@ export class AuthenticationContext {
         this.promptUser(this.url);
     }
 
-    promptUser(url: string) {
+    private promptUser(url: string) {
         if (url) window.location.replace(url);
         else console.error("URL not provided");
-        
+
     }
 
-    serialize(responseType: any, resource: any) {
+    private serialize(responseType: any, resource: any) {
         var str = [];
         str.push('?response_type=' + responseType);
-        str.push('client_id=' + encodeURIComponent(this.clientID));
+        str.push('client_id=' + encodeURIComponent(this.config.clientId));
         if (resource) {
             str.push('resource=' + encodeURIComponent(resource));
         }
 
-        str.push('redirect_uri=' + encodeURIComponent(this.redirectUri));
+        str.push('redirect_uri=' + encodeURIComponent(this.config.redirectUri));
         str.push('state=' + encodeURIComponent(''));
 
         var correlationId = this.getGUID();
@@ -197,7 +186,7 @@ export class AuthenticationContext {
         );
     }
 
-    getHash(hash: any) {
+    private getHash(hash: any) {
         if (hash.indexOf('#/') > -1) {
             hash = hash.substring(hash.indexOf('#/') + 2);
         } else if (hash.indexOf('#') > -1) {
@@ -206,7 +195,7 @@ export class AuthenticationContext {
         return hash;
     }
 
-    deserialize(hash: any) {
+    private deserialize(hash: any) {
         var match,
             pl = /\+/g, // Regex for replacing addition symbol with a space
             search = /([^&=]+)=([^&]*)/g,
