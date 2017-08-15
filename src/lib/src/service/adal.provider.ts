@@ -1,7 +1,8 @@
 import { AdalConfig } from './adal.config';
 import { AuthenticationContext } from './adal';
 /// <reference path="./index.d.ts" />
-import { Injectable, Inject } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 
 @Injectable()
 export class AdalProvider {
@@ -9,16 +10,22 @@ export class AdalProvider {
         private context: AuthenticationContext
     ) {
     }
+
     login() {
-        //take values and set prop and then login make optional?
         if (!this.context.isCallback(window.location.hash)) {
             this.context.login();
         } else {
-            this.context.handleCallback();
+            this.context.handleWindowCallback(window.location.hash);
         }
     }
 
-    getToken() {
-        return this.context.acquireToken();
+    getToken(): Observable<string> {
+        let self = this;
+        return Observable.create(function(observer){
+            self.context.acquireToken(null, function cb(token){
+                observer.next(token);
+                observer.complete();
+            });
+        });
     }
 } 
