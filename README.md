@@ -1,27 +1,81 @@
-# AdalAngularTSDemo
+<!--TODO: Add how to use interceptor -->
+[![npm version](https://badge.fury.io/js/adal-angular-ts.svg)](https://badge.fury.io/js/adal-angular-ts)
+![npm license](https://img.shields.io/npm/l/express.svg)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.0.0.
+# adal-angular-ts
+A typescript library that allows you to authenticate against Azure Active Directory. 
 
-## Development server
+Version 6.0.0 supports Angular 6.0.0. For Support for Angular `2.0.0 > & < 6.0.0` run `npm i adal-angular-ts@1.1.6`.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+This library was built using [Angular CLI](https://github.com/angular/angular-cli/wiki/stories-create-library).
 
-## Code scaffolding
+## Instalation
+```
+npm i adal-angular-ts
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Example Usage
 
-## Build
+### Add Module to Bootstrap of Application
+```
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+import { AppComponent } from './app.component';
+import { AdalAngularTSModule, TokenInterceptor } from "adal-angular-ts";
 
-## Running unit tests
+const adalConfig = {
+  clientId: '11111111-1111-1111-1111-11111111111',
+  tenant: 'companyName.onmicrosoft.com',
+  redirectUri: null,
+  postLogoutRedirectUrl: window.location.origin,
+  instance: 'https://login.microsoftonline.com/',
+};
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    AdalAngularTSModule.forRoot(adalConfig)
+  ],
+  providers: [
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: TokenInterceptor,
+            multi: true,
+        }
+  ],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
 
-## Running end-to-end tests
+### Call Login in desired component
+```
+import { Component } from '@angular/core';
+import { AdalAngularTSService } from "adal-angular-ts";
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  title = 'app';
+  constructor(
+    private adalService: AdalAngularTSService
+  ){
+    this.adalService.login();
+  }
+}
+```
 
-## Further help
+## Issue Reporting
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+If you have found a bug or if you have a feature request, please report them at this repository issues section. 
+
+## Contributing
+
+Pull requests are welcome!

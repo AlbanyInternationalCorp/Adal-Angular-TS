@@ -116,6 +116,46 @@
           }
         }
       }
+    },
+    "Adal-Angular-TS": {
+      "root": "projects/adal-angular-ts",
+      "sourceRoot": "projects/adal-angular-ts/src",
+      "projectType": "library",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-ng-packagr:build",
+          "options": {
+            "tsConfig": "projects/adal-angular-ts/tsconfig.lib.json",
+            "project": "projects/adal-angular-ts/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "project": "projects/adal-angular-ts/ng-package.prod.json"
+            }
+          }
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/adal-angular-ts/src/test.ts",
+            "tsConfig": "projects/adal-angular-ts/tsconfig.spec.json",
+            "karmaConfig": "projects/adal-angular-ts/karma.conf.js"
+          }
+        },
+        "lint": {
+          "builder": "@angular-devkit/build-angular:tslint",
+          "options": {
+            "tsConfig": [
+              "projects/adal-angular-ts/tsconfig.lib.json",
+              "projects/adal-angular-ts/tsconfig.spec.json"
+            ],
+            "exclude": [
+              "**/node_modules/**"
+            ]
+          }
+        }
+      }
     }
   },
   "defaultProject": "Adal-Angular-TS-Demo"

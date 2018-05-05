@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { AdalAngularTSConfig, AdalAngularTSService } from 'Adal-Angular-TS';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +9,10 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'app';
+
+  constructor(
+    private adalService: AdalAngularTSService,
+  ){
+    this.adalService.login();
+  }
 }
