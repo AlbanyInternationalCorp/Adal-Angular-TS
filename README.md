@@ -5,7 +5,7 @@
 # adal-angular-ts
 A typescript library that allows you to authenticate against Azure Active Directory. 
 
-Version 6.0.0 supports Angular 6.0.0. For Support for Angular `2.0.0 > & < 6.0.0` run `npm i adal-angular-ts@1.1.6`.
+Version 6.0.0 ^ supports Angular 6.0.0. For Support for Angular `2.0.0 > & < 6.0.0` run `npm i adal-angular-ts@1.1.6`.
 
 This library was built using [Angular CLI](https://github.com/angular/angular-cli/wiki/stories-create-library).
 
@@ -40,6 +40,7 @@ const adalConfig = {
     BrowserModule,
     AdalAngularTSModule.forRoot(adalConfig)
   ],
+  // Adding TokenInterceptor will automatically assign the bearer token to all requests
   providers: [
         {
             provide: HTTP_INTERCEPTORS,
@@ -71,6 +72,7 @@ export class AppComponent {
   }
 }
 ```
+
 
 ## Issue Reporting
 

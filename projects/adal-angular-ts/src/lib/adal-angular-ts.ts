@@ -356,7 +356,7 @@ export class AuthenticationContext {
         return this.now() + parseInt(expires, 10);
     }
 
-    private getCachedToken(resource: any): string {
+    getCachedToken(resource: any): string {
         if (resource == null || resource == "") resource = this.config.clientId;
         let token = this.getItem("adal.access.token.key" + resource);
         let expiry = parseInt(this.getItem("adal.expiration.key" + resource));

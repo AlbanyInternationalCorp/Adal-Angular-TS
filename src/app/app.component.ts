@@ -14,5 +14,6 @@ export class AppComponent {
     private adalService: AdalAngularTSService,
   ){
     this.adalService.login();
+
   }
 }

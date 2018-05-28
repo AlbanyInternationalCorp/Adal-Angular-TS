@@ -13,7 +13,6 @@ const adalConfig = {
   instance: 'https://login.microsoftonline.com/',
 };
 
-
 @NgModule({
   declarations: [
     AppComponent
