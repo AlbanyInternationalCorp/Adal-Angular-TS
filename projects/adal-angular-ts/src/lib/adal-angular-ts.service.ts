@@ -21,8 +21,11 @@ export class AdalAngularTSService {
     return this.context.getCachedToken(resource);
   }
 
-  getToken(resource: string = null): Observable<string> {
+  getToken(resource?: string, endpoint?: string): Observable<string> {
     let self = this;
+    if(!resource){
+      resource = this.getResourceForEndpoint(endpoint);
+    }
     return Observable.create(function(observer: any) {
       self.context.acquireToken(resource, function cb(
         description: any,
@@ -34,7 +37,7 @@ export class AdalAngularTSService {
     });
   }
 
-  getResourceForEndpoint(endpoint: string){
+  private getResourceForEndpoint(endpoint: string) : string{
     return this.context.getResourceForEndpoint(endpoint);
   }
 
