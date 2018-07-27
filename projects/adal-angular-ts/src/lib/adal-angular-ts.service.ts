@@ -17,10 +17,14 @@ export class AdalAngularTSService {
     }
   }
 
-  getToken(): Observable<string> {
+  getCachedToken(resource: string = null): string {
+    return this.context.getCachedToken(resource);
+  }
+
+  getToken(resource: string = null): Observable<string> {
     let self = this;
     return Observable.create(function(observer: any) {
-      self.context.acquireToken(null, function cb(
+      self.context.acquireToken(resource, function cb(
         description: any,
         token: any
       ) {
@@ -28,6 +32,10 @@ export class AdalAngularTSService {
         observer.complete();
       });
     });
+  }
+
+  getResourceForEndpoint(endpoint: string){
+    return this.context.getResourceForEndpoint(endpoint);
   }
 
   getUserEmail() {

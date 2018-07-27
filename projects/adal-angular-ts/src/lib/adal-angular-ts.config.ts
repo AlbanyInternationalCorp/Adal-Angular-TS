@@ -7,6 +7,10 @@ export class AdalAngularTSConfig {
     public postLogoutRedirectUrl?: string;
     public instance?: string;
     public extraQueryParameter?: string;
+    public endpoints?; // Collection of {Endpoint-ResourceId}
+    public anonymousEndpoints?: string[];
+    public loginResource?: string;
+
     constructor(
     ) {
     }

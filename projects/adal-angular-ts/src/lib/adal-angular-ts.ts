@@ -10,6 +10,7 @@ export class AuthenticationContext {
     private callback: any = null;
     private _user: any = {};
     private _idTokenNonce: string = null;
+    private _requestType: string = 'LOGIN';
 
     constructor(@Inject("config") private config: AdalAngularTSConfig) {
         if (!this.config.instance)
@@ -124,8 +125,52 @@ export class AuthenticationContext {
         }
     }
 
+    acquireToken(resource: string, callback: any){
+        if (this._isEmpty(resource)) {
+            resource = this.config.clientId;
+        }
 
-    acquireToken(resource: string, callback: any) {
+        var token = this.getCachedToken(resource);
+
+        if (token) {
+            callback(null, token, null);
+            return;
+        }
+
+        if (!this._user && !(this.config.extraQueryParameter && this.config.extraQueryParameter.indexOf('login_hint') !== -1)) {
+            callback('User login is required', null, 'login required');
+            return;
+        }
+
+        // renew attempt with iframe
+        // Already renewing for this resource, callback when we get the token.
+        if (this._activeRenewals[resource]) {
+            // Active renewals contains the state for each renewal.
+            this.registerCallback(this._activeRenewals[resource], resource, callback);
+        }
+        else {
+            this._requestType = 'RENEW_TOKEN';
+            if (resource === this.config.clientId) {
+                // App uses idtoken to send to api endpoints
+                // Default resource is tracked as clientid to store this token
+                if (this._user) {
+                    this._renewIdToken(callback);
+                }
+                else {
+                    this._renewIdToken(callback, 'id_token token');
+                }
+            } else {
+                if (this._user) {
+                    this._renewToken(resource, callback);
+                }
+                else {
+                    this._renewToken(resource, callback, 'id_token token');
+                }
+            }
+        }
+    }
+
+    acquireToken_old(resource: string, callback: any) {
         // if (resource == null || resource == '') {
         //     observer.throw('Input value resource is required!');
         // }
@@ -356,7 +401,7 @@ export class AuthenticationContext {
         return this.now() + parseInt(expires, 10);
     }
 
-    private getCachedToken(resource: any): string {
+    getCachedToken(resource: any): string {
         if (resource == null || resource == "") resource = this.config.clientId;
         let token = this.getItem("adal.access.token.key" + resource);
         let expiry = parseInt(this.getItem("adal.expiration.key" + resource));
@@ -734,7 +779,7 @@ export class AuthenticationContext {
     }
 
 
-    private _renewToken(resource: any, callback: any) {
+    private _renewToken(resource: any, callback: any, responseType: string = null) {
         // use iframe to try refresh token
         // use given resource to create new authz url
         if (resource == null || resource == "") resource = this.config.clientId;
@@ -744,7 +789,14 @@ export class AuthenticationContext {
         // renew happens in iframe, so it keeps javascript context
         (<any>window).renewStates.push(expectedState);
 
-        let urlNavigate = this.getUrl("token" /*, resource*/) + "&prompt=none";
+        responseType = responseType || 'token';
+        let urlNavigate = this.getUrl(responseType, resource);
+        if (responseType === 'id_token token') {
+            this._idTokenNonce = this.getGUID();
+            this.saveItem('adal.nonce.idtoken', this._idTokenNonce);
+            urlNavigate += '&nonce=' + encodeURIComponent(this._idTokenNonce);
+        }
+        urlNavigate = urlNavigate + "&prompt=none";
         urlNavigate = this._addHintParameters(urlNavigate);
 
         this.registerCallback(expectedState, resource, callback);
@@ -753,7 +805,7 @@ export class AuthenticationContext {
     }
 
 
-    private _renewIdToken(callback: any) {
+    private _renewIdToken(callback: any, responseType: string = null) {
         // use iframe to try refresh token
         if (this._loginInProgress) {
             let expectedState = this.getItem("adal.state.login");
@@ -766,11 +818,13 @@ export class AuthenticationContext {
         var expectedState = this.getGUID() + "|" + this.config.clientId;
         this._idTokenNonce = this.getGUID();
         this.saveItem("adal.nonce.idtoken", this._idTokenNonce);
-        (<any>this.config).state = expectedState; // This never seems to be used?
+        (<any>this.config).state = expectedState;
         // renew happens in iframe, so it keeps javascript context
         (<any>window).renewStates.push(expectedState);
 
-        var urlNavigate = this.getUrl("id_token", null) + "&prompt=none";
+        var resource = responseType === null || typeof (responseType) === "undefined" ? null : this.config.clientId;
+        var responseType = responseType || 'id_token';
+        var urlNavigate = this.getUrl(responseType, resource) + "&prompt=none";
         urlNavigate = this._addHintParameters(urlNavigate);
 
         urlNavigate += "&nonce=" + encodeURIComponent(this._idTokenNonce);
@@ -810,6 +864,51 @@ export class AuthenticationContext {
         var keys = this.getItem("adal.token.keys");
         return keys && !this._isEmpty(keys) && keys.indexOf(key + "|") > -1;
     }
+
+    getResourceForEndpoint(endpoint: string): string {
+
+        // if user specified list of anonymous endpoints, no need to send token to these endpoints, return null.
+        if (this.config && this.config.anonymousEndpoints) {
+            for (var i = 0; i < this.config.anonymousEndpoints.length; i++) {
+                if (endpoint.indexOf(this.config.anonymousEndpoints[i]) > -1) {
+                    return null;
+                }
+            }
+        }
+
+        if (this.config && this.config.endpoints) {
+            for (var configEndpoint in this.config.endpoints) {
+                // configEndpoint is like /api/Todo requested endpoint can be /api/Todo/1
+                if (endpoint.indexOf(configEndpoint) > -1) {
+                    return this.config.endpoints[configEndpoint];
+                }
+            }
+        }
+
+        // default resource will be clientid if nothing specified
+        // App will use idtoken for calls to itself
+        // check if it's staring from http or https, needs to match with app host
+        if (endpoint.indexOf('http://') > -1 || endpoint.indexOf('https://') > -1) {
+            if (this._getHostFromUri(endpoint) === this._getHostFromUri(this.config.redirectUri)) {
+                return this.config.loginResource;
+            }
+        }
+        else {
+            // in angular level, the url for $http interceptor call could be relative url,
+            // if it's relative call, we'll treat it as app backend call.            
+            return this.config.loginResource;
+        }
+
+        // if not the app's own backend or not a domain listed in the endpoints structure
+        return null;
+    }
+
+    private _getHostFromUri(uri: string): string {
+        // remove http:// or https:// from uri
+        var extractedUri = String(uri).replace(/^(https?:)\/\//, '');
+        extractedUri = extractedUri.split('/')[0];
+        return extractedUri;
+    };
 
     private supportSessionStorage(): boolean {
         try {
