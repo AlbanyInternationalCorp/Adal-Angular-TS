@@ -41,4 +41,8 @@ export class AdalAngularTSService {
   getUserEmail() {
     return this.context.getUserEmail();
   }
+
+  getCachedToken(resource:string){
+    return this.context.getCachedToken(resource);
+  }
 }
