@@ -867,6 +867,8 @@ export class AuthenticationContext {
 
     getResourceForEndpoint(endpoint: string): string {
 
+        if(!endpoint) return this.config.clientId;
+
         // if user specified list of anonymous endpoints, no need to send token to these endpoints, return null.
         if (this.config && this.config.anonymousEndpoints) {
             for (var i = 0; i < this.config.anonymousEndpoints.length; i++) {

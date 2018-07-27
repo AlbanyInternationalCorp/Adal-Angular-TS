@@ -14,8 +14,7 @@ export class TokenInterceptor implements HttpInterceptor {
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
-        var resource = this.auth.getResourceForEndpoint(request.urlWithParams);
-        return this.auth.getToken(resource).pipe(mergeMap((token) => {
+        return this.auth.getToken(null, request.urlWithParams).pipe(mergeMap((token) => {
             if (token) {
                 // clone and modify the request
                 request = request.clone({
