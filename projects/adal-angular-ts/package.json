@@ -1,7 +1,7 @@
 {
   "name": "adal-angular-ts",
-  "version": "6.1.0",
-  "description": "AdalJS rewrite in Typescript for Angular6.X",
+  "version": "7.0.0",
+  "description": "AdalJS rewrite in Typescript for Angular7.X",
   "author": "Albany International Corp.",
     "license": "MIT",
     "repository": {
@@ -9,8 +9,8 @@
         "url": "git+https://github.com/AlbanyInternationalCorp/Adal-Angular-TS.git"
     },
   "peerDependencies": {
-    "@angular/common": "^6.0.0-rc.0 || ^6.0.0",
-    "@angular/core": "^6.0.0-rc.0 || ^6.0.0"
+    "@angular/common": "7.1.4",
+    "@angular/core": "7.1.4"
   },
   "bugs": {
     "url": "https://github.com/AlbanyInternationalCorp/Adal-Angular-TS/issues"
