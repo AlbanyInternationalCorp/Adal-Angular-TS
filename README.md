@@ -7,12 +7,15 @@ A typescript library that allows you to authenticate against Azure Active Direct
 
 Version 6.0.0 ^ supports Angular 6.0.0. For Support for Angular `2.0.0 > & < 6.0.0` run `npm i adal-angular-ts@1.1.6`.
 
+Version 7.0.0 ^ supports Angular 7.0.0. For Support for Angular `6.0.0 > & < 7.0.0` run `npm i adal-angular-ts@6.1.0`.
+
 This library was built using [Angular CLI](https://github.com/angular/angular-cli/wiki/stories-create-library).
 
 ## Instalation
 ```
 npm i adal-angular-ts
 ```
+
 
 ## Example Usage
 
