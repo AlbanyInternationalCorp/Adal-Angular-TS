@@ -5,13 +5,17 @@
 # adal-angular-ts
 A typescript library that allows you to authenticate against Azure Active Directory. 
 
+**NOTE:** There is a newer Microsoft library called MSAL (https://github.com/AzureAD/microsoft-authentication-library-for-js).
+For *most* usage, the MSAL library will fit your needs. However, if your usage still requires ADAL (if directly targeting ADFS 2016 or older, for example)
+and you have a need for TypeScript support, then this library is still a good fit.
+
 Version 6.0.0 ^ supports Angular 6.0.0. For Support for Angular `2.0.0 > & < 6.0.0` run `npm i adal-angular-ts@1.1.6`.
 
 Version 7.0.0 ^ supports Angular 7.0.0. For Support for Angular `6.0.0 > & < 7.0.0` run `npm i adal-angular-ts@6.1.0`.
 
 This library was built using [Angular CLI](https://github.com/angular/angular-cli/wiki/stories-create-library).
 
-## Instalation
+## Installation
 ```
 npm i adal-angular-ts
 ```

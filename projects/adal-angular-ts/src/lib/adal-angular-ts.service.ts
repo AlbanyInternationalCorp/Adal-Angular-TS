@@ -9,11 +9,16 @@ export class AdalAngularTSService {
 
   constructor(private context: AuthenticationContext) {}
 
-  login() {
-    if (!this.context.isCallback(window.location.hash)) {
-      this.context.login();
-    } else {
+  login(): any {
+    if(this.context.isCallback(window.location.hash)){
       this.context.handleWindowCallback(window.location.hash);
+    }
+    else {
+      let error = this.context.getLoginError();
+      if(error && error.error){ return error; }
+      else{
+        this.context.login();
+      }
     }
   }
 
@@ -35,6 +40,10 @@ export class AdalAngularTSService {
         observer.complete();
       });
     });
+  }
+
+  clearCacheForResource(resource: string = null) {
+    this.context.clearCacheForResource(resource);
   }
 
   private getResourceForEndpoint(endpoint: string) : string{

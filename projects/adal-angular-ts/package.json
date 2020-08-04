@@ -1,6 +1,6 @@
 {
   "name": "adal-angular-ts",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "AdalJS rewrite in Typescript for Angular7.X",
   "author": "Albany International Corp.",
   "license": "MIT",

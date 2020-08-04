@@ -125,6 +125,10 @@ export class AuthenticationContext {
         }
     }
 
+    getLoginError(){
+        return { error: this.getItem('adal.error'), description: this.getItem('adal.error.description') };
+    }
+
     acquireToken(resource: string, callback: any){
         if (this._isEmpty(resource)) {
             resource = this.config.clientId;
@@ -903,6 +907,17 @@ export class AuthenticationContext {
 
         // if not the app's own backend or not a domain listed in the endpoints structure
         return null;
+    }
+
+    clearCacheForResource(resource: string){
+        this.saveItem('adal.state.renew', '');
+        this.saveItem('adal.error', '');
+        this.saveItem('adal.error.description', '');
+
+        if (this._hasResource(resource)) {
+            this.saveItem('adal.access.token.key' + resource, '');
+            this.saveItem('adal.expiration.key' + resource, 0);
+        }
     }
 
     private _getHostFromUri(uri: string): string {
