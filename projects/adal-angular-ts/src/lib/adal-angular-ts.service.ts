@@ -1,11 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Observable } from "rxjs";
 import { AuthenticationContext } from './adal-angular-ts';
+import { AdalAngularTSConfig } from './adal-angular-ts.config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdalAngularTSService {
+
+  set config(config: AdalAngularTSConfig) {
+    this.context.config = config;
+  }
 
   constructor(private context: AuthenticationContext) {}
 

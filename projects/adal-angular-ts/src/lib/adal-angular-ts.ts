@@ -12,15 +12,21 @@ export class AuthenticationContext {
     private _idTokenNonce: string = null;
     private _requestType: string = 'LOGIN';
 
-    constructor(@Inject("config") private config: AdalAngularTSConfig) {
-        if (!this.config.instance)
-            this.config.instance = "https://login.microsoftonline.com/";
-        if (!this.config.redirectUri) {
+    private _config: AdalAngularTSConfig;
+    get config(): AdalAngularTSConfig { return this._config; }
+    set config(config: AdalAngularTSConfig){
+        if (!config.instance) config.instance = "https://login.microsoftonline.com/";
+        if (!config.redirectUri) {
             // strip off query parameters or hashes from the redirect uri as AAD does not allow those.
-            this.config.redirectUri = window.location.href
+            config.redirectUri = window.location.href
                 .split("?")[0]
                 .split("#")[0];
         }
+        this._config = config;
+    }
+
+    constructor(@Inject("config") config: AdalAngularTSConfig) {
+        this.config = config;
 
         (<any>window).renewStates = [];
         (<any>window).callBackMappedToRenewStates = {};
