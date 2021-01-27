@@ -596,7 +596,13 @@ export class AuthenticationContext {
      */
 
     public getUserEmail() {
-        return this._user.userName ? this._user.userName : "";
+        if(!this._user) {
+            let idtoken = this.getItem("adal.idtoken");
+            if(!this._isEmpty(idtoken)){
+                this._user = this._createUser(idtoken);
+            }
+        }
+        return this._user && this._user.userName ? this._user.userName : "";
     }
 
 
