@@ -28,7 +28,7 @@
     "@angular-devkit/build-angular": "^15.0.0",
     "@angular-devkit/build-ng-packagr": "^0.1002.0",
     "@angular/cli": "8.3.29",
-    "@angular/compiler-cli": "8.0.1",
+    "@angular/compiler-cli": "15.0.2",
     "@angular/language-service": "8.0.1",
     "@types/jasmine": "3.3.13",
     "@types/jasminewd2": "2.0.6",
